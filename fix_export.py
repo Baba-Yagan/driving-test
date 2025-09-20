@@ -63,11 +63,10 @@ def fix_anki_export(input_file, output_file):
                 # Set CorrectChoice field (position 4, which is the 5th column)
                 fields[4] = correct_choice
                 
-                # Remove the Correct1, Correct2, Correct3 fields
-                # Remove from highest index to lowest to avoid index shifting
-                fields.pop(correct3_idx)
-                fields.pop(correct2_idx)
-                fields.pop(correct1_idx)
+                # Clear the Correct1, Correct2, Correct3 fields (keep tabs by using empty strings)
+                fields[correct1_idx] = ""
+                fields[correct2_idx] = ""
+                fields[correct3_idx] = ""
                 
                 # Reconstruct the line
                 fixed_line = '\t'.join(fields)
