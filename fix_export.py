@@ -31,35 +31,50 @@ def fix_anki_export(input_file, output_file):
             
         fields = line.split('\t')
         
-        # Expected field positions based on template.json:
-        # 0:ID, 1:Category, 2:Number, 3:Question, 4:Image, 5:CorrectChoice, 
-        # 6:Explanation, 7:DifficultyLevel, 8:Outdated, 9:Answer1, 10:Answer2, 11:Answer3,
-        # 12:Correct1, 13:Correct2, 14:Correct3
+        # Actual field positions from your data:
+        # 0:ID, 1:Category, 2:Deck, 3:Number, 4:(empty), 5:CorrectChoice, 6:Question, 
+        # 7-9:(Answer1,Answer2,Answer3), 10-12:(Correct1,Correct2,Correct3)
         
-        if len(fields) >= 15:  # Make sure we have all expected fields
-            correct1 = fields[12].lower() == 'true'
-            correct2 = fields[13].lower() == 'true'
-            correct3 = fields[14].lower() == 'true'
+        # Find where the Correct1/Correct2/Correct3 fields are
+        # They should be the last 3 non-empty fields, or we need to look for true/false values
+        if len(fields) >= 13:  # Make sure we have enough fields
+            # Look for true/false values in the last few fields
+            correct_fields = []
+            for i in range(len(fields) - 6, len(fields)):  # Check last 6 fields for true/false
+                if i >= 0 and fields[i].lower() in ['true', 'false']:
+                    correct_fields.append((i, fields[i].lower() == 'true'))
             
-            # Determine correct choice number
-            if correct1:
-                correct_choice = "1"
-            elif correct2:
-                correct_choice = "2"
-            elif correct3:
-                correct_choice = "3"
+            if len(correct_fields) >= 3:  # Found the correct fields
+                # Take the last 3 true/false fields as Correct1, Correct2, Correct3
+                correct1_idx, correct1 = correct_fields[-3]
+                correct2_idx, correct2 = correct_fields[-2] 
+                correct3_idx, correct3 = correct_fields[-1]
+                
+                # Determine correct choice number
+                if correct1:
+                    correct_choice = "1"
+                elif correct2:
+                    correct_choice = "2"
+                elif correct3:
+                    correct_choice = "3"
+                else:
+                    correct_choice = "1"  # Default fallback
+                
+                # Set CorrectChoice field (position 5)
+                fields[5] = correct_choice
+                
+                # Remove the Correct1, Correct2, Correct3 fields
+                # Remove from highest index to lowest to avoid index shifting
+                fields.pop(correct3_idx)
+                fields.pop(correct2_idx)
+                fields.pop(correct1_idx)
+                
+                # Reconstruct the line
+                fixed_line = '\t'.join(fields)
+                fixed_lines.append(fixed_line + '\n')
             else:
-                correct_choice = "1"  # Default fallback
-            
-            # Set CorrectChoice field (position 5)
-            fields[5] = correct_choice
-            
-            # Remove the last 3 fields (Correct1, Correct2, Correct3)
-            fields = fields[:12]
-            
-            # Reconstruct the line
-            fixed_line = '\t'.join(fields)
-            fixed_lines.append(fixed_line + '\n')
+                # No true/false fields found, keep line as-is
+                fixed_lines.append(line + '\n')
         else:
             # If line doesn't have expected number of fields, keep as-is
             fixed_lines.append(line + '\n')
