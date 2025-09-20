@@ -1,0 +1,5 @@
+*.apkg
+work/*
+work
+*.txt
+.aider*
