@@ -1,0 +1,23 @@
+{
+    "modelName": "DrivingNote",
+    "inOrderFields": [
+        "ID",
+        "Category",
+        "Number",
+        "Question",
+        "Image",
+        "CorrectChoice",
+        "Explanation",
+        "DifficultyLevel",
+        "Outdated",
+        "Answer1",
+        "Answer2",
+        "Answer3",
+        "Correct1",
+        "Correct2",
+        "Correct3"
+    ],
+    "cardTemplates": [
+        "Card 1"
+    ]
+}
