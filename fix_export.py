@@ -32,8 +32,8 @@ def fix_anki_export(input_file, output_file):
         fields = line.split('\t')
         
         # Actual field positions from your data:
-        # 0:ID, 1:Category, 2:Deck, 3:Number, 4:(empty), 5:CorrectChoice, 6:Question, 
-        # 7-9:(Answer1,Answer2,Answer3), 10-12:(Correct1,Correct2,Correct3)
+        # 0:ID, 1:Category, 2:Deck, 3:Number, 4:CorrectChoice, 5:Question, 
+        # 6-8:(Answer1,Answer2,Answer3), 9-11:(Correct1,Correct2,Correct3)
         
         # Find where the Correct1/Correct2/Correct3 fields are
         # They should be the last 3 non-empty fields, or we need to look for true/false values
@@ -60,8 +60,8 @@ def fix_anki_export(input_file, output_file):
                 else:
                     correct_choice = "1"  # Default fallback
                 
-                # Set CorrectChoice field (position 5)
-                fields[5] = correct_choice
+                # Set CorrectChoice field (position 4, which is the 5th column)
+                fields[4] = correct_choice
                 
                 # Remove the Correct1, Correct2, Correct3 fields
                 # Remove from highest index to lowest to avoid index shifting
