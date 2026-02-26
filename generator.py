@@ -28,7 +28,6 @@ def main():
             question_list = json.loads(question_list_str)
             
             print("Successfully extracted questionList")
-            # print(question_list)
             print(f"Total questions found: {len(question_list)}")
 
             # Create the main media directory
@@ -36,28 +35,45 @@ def main():
             os.makedirs(media_dir, exist_ok=True)
             print(f"Created '{media_dir}' directory.")
 
+            # Counters for progress tracking
+            total_questions = len(question_list)
+            downloaded_count = 0
+            skipped_count = 0
+
             # Create a subfolder for each question and download details
-            for question in question_list:
+            for index, question in enumerate(question_list, 1):
                 question_folder_name = f"question_{question}"
                 question_path = os.path.join(media_dir, question_folder_name)
                 os.makedirs(question_path, exist_ok=True)
                 
-                # Download the JSON for this specific question
-                api_url = f"https://etesty.md.gov.cz/api/v1/PublicWeb/Question/{question}"
-                try:
-                    print(f"Downloading details for ID {question}...")
-                    q_response = requests.get(api_url)
-                    q_response.raise_for_status()
-                    
-                    # Save the JSON content to a file in the subfolder
-                    output_file_path = os.path.join(question_path, "question.json")
-                    with open(output_file_path, 'w', encoding='utf-8') as f:
-                        f.write(q_response.text)
+                output_file_path = os.path.join(question_path, "question.json")
+
+                # Check if file already exists
+                if os.path.exists(output_file_path):
+                    skipped_count += 1
+                else:
+                    # Download the JSON for this specific question
+                    api_url = f"https://etesty.md.gov.cz/api/v1/PublicWeb/Question/{question}"
+                    try:
+                        q_response = requests.get(api_url)
+                        q_response.raise_for_status()
                         
-                except Exception as e:
-                    print(f"Error downloading/saving question {question}: {e}")
+                        # Save the JSON content to a file in the subfolder
+                        with open(output_file_path, 'w', encoding='utf-8') as f:
+                            f.write(q_response.text)
+                        
+                        downloaded_count += 1
+                            
+                    except Exception as e:
+                        # Print error on a new line so it doesn't get overwritten by progress
+                        print(f"\nError downloading/saving question {question}: {e}")
+
+                # Update progress on the same line
+                print(f"Progress: {index}/{total_questions} | Downloaded: {downloaded_count} | Skipped: {skipped_count}", end='\r')
             
-            print("Finished processing questions.")
+            # Print a new line at the end to separate the final progress message from the next output
+            print()
+            print(f"Finished processing questions. Downloaded: {downloaded_count}, Skipped: {skipped_count}.")
 
         else:
             print("Could not find 'questionList' in the downloaded content.")
