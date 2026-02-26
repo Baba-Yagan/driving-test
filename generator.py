@@ -75,6 +75,58 @@ def main():
             print()
             print(f"Finished processing questions. Downloaded: {downloaded_count}, Skipped: {skipped_count}.")
 
+            # --- Second Iteration: Download Media ---
+            print("\nStarting media download...")
+            media_downloaded = 0
+            media_skipped = 0
+            media_errors = 0
+
+            for index, question in enumerate(question_list, 1):
+                question_folder_name = f"question_{question}"
+                question_path = os.path.join(media_dir, question_folder_name)
+                json_path = os.path.join(question_path, "question.json")
+
+                if os.path.exists(json_path):
+                    try:
+                        with open(json_path, 'r', encoding='utf-8') as f:
+                            q_data = json.load(f)
+
+                        # Check if mediaContent exists
+                        if q_data.get("mediaContent"):
+                            media_url_relative = q_data["mediaContent"].get("mediaUrl")
+                            media_name = q_data["mediaContent"].get("printMediaName")
+
+                            if media_url_relative and media_name:
+                                # Construct full URL
+                                base_url = "https://etesty.md.gov.cz"
+                                full_media_url = f"{base_url}{media_url_relative}"
+                                media_save_path = os.path.join(question_path, media_name)
+
+                                if os.path.exists(media_save_path):
+                                    media_skipped += 1
+                                else:
+                                    try:
+                                        m_response = requests.get(full_media_url)
+                                        m_response.raise_for_status()
+                                        
+                                        # Write binary content
+                                        with open(media_save_path, 'wb') as mf:
+                                            mf.write(m_response.content)
+                                        
+                                        media_downloaded += 1
+                                    except Exception as e:
+                                        media_errors += 1
+                                        print(f"\nError downloading media for question {question}: {e}")
+                    except Exception as e:
+                        print(f"\nError parsing JSON for question {question}: {e}")
+                
+                # Update progress on the same line
+                print(f"Media Progress: {index}/{total_questions} | Downloaded: {media_downloaded} | Skipped: {media_skipped} | Errors: {media_errors}", end='\r')
+
+            print()
+            print(f"Finished processing media. Downloaded: {media_downloaded}, Skipped: {media_skipped}, Errors: {media_errors}.")
+            # ---------------------------------------
+
         else:
             print("Could not find 'questionList' in the downloaded content.")
 
