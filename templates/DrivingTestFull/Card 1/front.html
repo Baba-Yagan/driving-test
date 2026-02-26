@@ -1,0 +1,177 @@
+<script>
+// Load persistence script (ensure it's in your template)
+if (!window.Persistence) {
+  var e = "github.com/SimonLammer/anki-persistence/", t = "_default";
+  window.Persistence_sessionStorage = function () {
+    var i = !1;
+    try {
+      "object" == typeof window.sessionStorage && (i = !0, this.clear = function () {
+        for (var t = 0; t < sessionStorage.length; t++) {
+          var i = sessionStorage.key(t);
+          0 == i.indexOf(e) && (sessionStorage.removeItem(i), t--)
+        }
+      }, this.setItem = function (i, n) {
+        void 0 == n && (n = i, i = t), sessionStorage.setItem(e + i, JSON.stringify(n))
+      }, this.getItem = function (i) {
+        return void 0 == i && (i = t), JSON.parse(sessionStorage.getItem(e + i))
+      }, this.removeItem = function (i) {
+        void 0 == i && (i = t), sessionStorage.removeItem(e + i)
+      }, this.getAllKeys = function () {
+        for (var t = [], i = Object.keys(sessionStorage), n = 0; n < i.length; n++) {
+          var s = i[n];
+          0 == s.indexOf(e) && t.push(s.substring(e.length, s.length))
+        }
+        return t.sort()
+      })
+    } catch (n) { }
+    this.isAvailable = function () {
+      return i
+    }
+  }, window.Persistence = new Persistence_sessionStorage, !Persistence.isAvailable() && (window.Persistence = new function (i) {
+    var n = window[i], s = !1;
+    "object" == typeof n && (s = !0, this.clear = function () {
+      n[e] = {}
+    }, this.setItem = function (i, s) {
+      void 0 == s && (s = i, i = t), n[e][i] = s
+    }, this.getItem = function (i) {
+      return void 0 == i && (i = t), void 0 == n[e][i] ? null : n[e][i]
+    }, this.removeItem = function (i) {
+      void 0 == i && (i = t), delete n[e][i]
+    }, this.getAllKeys = function () {
+      return Object.keys(n[e])
+    }, void 0 == n[e] && this.clear()), this.isAvailable = function () {
+      return s
+    }
+  }("py")), !Persistence.isAvailable() && (window.Persistence = new function (i) {
+    var n = window[i], s = !1;
+    "object" == typeof n && (s = !0, this.clear = function () {
+      n[e] = {}
+    }, this.setItem = function (i, s) {
+      void 0 == s && (s = i, i = t), n[e][i] = s
+    }, this.getItem = function (i) {
+      return void 0 == i && (i = t), void 0 == n[e][i] ? null : n[e][i]
+    }, this.removeItem = function (i) {
+      void 0 == i && (i = t), delete n[e][i]
+    }, this.getAllKeys = function () {
+      return Object.keys(n[e])
+    }, void 0 == n[e] && this.clear()), this.isAvailable = function () {
+      return s
+    }
+  }("qt")))
+}
+</script>
+
+<style>
+    img, video {
+        max-width: 100%;
+        height: auto;
+        max-height: 500px;
+        display: block;
+        margin: 10px auto;
+    }
+</style>
+<!-- Front Side -->
+<div class="question">{{questionText}}</div>
+{{mediaContent}}
+
+<!-- Hidden divs to capture Anki field values reliably -->
+<!-- Use display:none to hide these divs -->
+<div id="anki_answer1" style="display:none;">{{answer1}}</div>
+<div id="anki_answer2" style="display:none;">{{answer2}}</div>
+<div id="anki_answer3" style="display:none;">{{answer3}}</div>
+
+<form id="answerForm">
+    <!-- Answers will be inserted here by JavaScript -->
+</form>
+
+<script>
+// Fisher-Yates (Knuth) shuffle algorithm
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Function to handle card display logic
+function setupCardAnswers() {
+    const anki_answer1_div = document.getElementById('anki_answer1');
+    const anki_answer2_div = document.getElementById('anki_answer2');
+    const anki_answer3_div = document.getElementById('anki_answer3');
+
+    if (!(anki_answer1_div && anki_answer2_div && anki_answer3_div)) {
+        console.error("Anki answer elements (anki_answer1, anki_answer2, anki_answer3) not found. Check template HTML.");
+        return; // Exit if essential elements aren't present
+    }
+
+    // ************* IMPORTANT CHANGE HERE *************
+    // Use .innerHTML instead of .textContent to get HTML content (e.g., images)
+    const answers = [
+        anki_answer1_div.innerHTML, // Get full HTML content
+        anki_answer2_div.innerHTML, // Get full HTML content
+        anki_answer3_div.innerHTML  // Get full HTML content
+    ].filter(answer => {
+        // Filter out truly empty strings, or strings that become empty after stripping HTML for text comparison
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = answer;
+        return tempDiv.textContent.trim() !== '' || answer.includes('<img'); // Keep if has text content, or if it contains an image
+    });
+
+    const form = document.getElementById('answerForm');
+
+    // CRITICAL FIX: Clear previous content of the form before adding new elements
+    form.innerHTML = '';
+
+    if (answers.length === 0) {
+        console.warn("No valid answers found for this card after filtering empty fields.");
+        // Optional: display a message to the user on the card
+        // form.innerHTML = "<p style='color:red;'>No answers to display. Check your card fields.</p>";
+        return;
+    }
+
+    // Shuffle the answers
+    shuffleArray(answers);
+
+    // Dynamically create and append the checkboxes
+    answers.forEach((answerContent, index) => { // Renamed answerText to answerContent for clarity
+        const checkboxId = `cb_rand_${index}`;
+
+        const label = document.createElement('label');
+        // Insert the HTML content directly into the label
+        label.innerHTML = `<br><input type="checkbox" id="${checkboxId}"> ${answerContent}`;
+        form.appendChild(label);
+
+        // Add a separator, but avoid one after the last item
+        if (index < answers.length - 1) {
+            form.appendChild(document.createElement('hr'));
+        }
+    });
+
+    // Add a final break for spacing (outside the loop)
+    form.appendChild(document.createElement('br'));
+
+    // Apply persistence logic to the dynamically created checkboxes
+    if (Persistence.isAvailable()) {
+        answers.forEach((answerContent, index) => { // Renamed answerText to answerContent
+            const checkboxId = `cb_rand_${index}`;
+            const checkbox = document.getElementById(checkboxId);
+
+            if (checkbox) {
+                // Use the full HTML content as the key for persistence
+                checkbox.checked = Persistence.getItem(answerContent) === "true";
+
+                // Save state using the full HTML content as the key on change
+                checkbox.onchange = () => Persistence.setItem(answerContent, checkbox.checked);
+            } else {
+                 console.warn(`WARNING: Checkbox with ID ${checkboxId} not found for answer: ${answerContent}. Persistence might fail for this item.`);
+            }
+        });
+    } else {
+        console.warn("WARNING: Persistence not available. Checkboxes will not retain state.");
+    }
+}
+
+// Call the function to set up the card.
+// This will reliably run each time the card is displayed.
+setupCardAnswers();
+</script>

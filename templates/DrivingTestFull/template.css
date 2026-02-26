@@ -1,0 +1,132 @@
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black; /* Light mode text color */
+    background-color: white; /* Light mode background */
+}
+
+.question {
+    /* Assuming this .question is within .card, so its color will inherit from .card */
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+form {
+    display: table;
+    margin: 10px auto;
+    border-collapse: collapse;
+    padding: 10px;
+    border: 1px solid black; /* Light mode border */
+    background-color: #f9f9f9; /* Light mode background */
+}
+
+label {
+    display: table-row;
+    padding: 5px;
+    font-size: 1em;
+    /* Color will inherit from .card unless explicitly set here */
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+    /* Anki usually handles checkbox visibility well in dark mode, but if not,
+       you might need `filter: invert(1);` or similar, but test first. */
+}
+
+/* Optional: Add spacing and centering (general body styles) */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+.answers {
+    display: table;
+    margin: 10px auto;
+    border-collapse: collapse;
+    padding: 10px;
+    border: 1px solid black; /* Light mode border */
+    background-color: #f9f9f9; /* Light mode background */
+}
+
+.answer {
+    display: table-row;
+    padding: 5px;
+    font-size: 1em;
+    text-align: center;
+    /* Color will inherit from .card unless explicitly set here */
+}
+
+.true {
+    color: green; /* Light mode green */
+    font-weight: bold;
+}
+
+.false {
+    color: red; /* Light mode red */
+}
+
+.checked {
+    text-decoration: underline;
+    /* The underline color will typically match the text color, so no explicit dark mode change needed unless you want a different specific color for the underline itself. */
+}
+
+.explanation {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    font-style: italic;
+    /* Color will inherit from .card unless explicitly set here */
+}
+
+/* --- DARK MODE STYLES --- */
+/* These rules apply when Anki's dark mode is enabled and the 'dark-mode' class is added to the body. */
+body.nightMode {
+    /* Optional: Anki usually styles the overall body background for dark mode,
+       but you can override it if needed. */
+    background-color: #1a1a1a; /* A very dark gray for the overall background */
+    color: #eee; /* Default text color for elements not explicitly styled */
+}
+
+body.nightMode .card {
+    background-color: #222; /* Darker background for the main card area */
+    color: #ccc; /* Lighter text color for readability on dark background */
+}
+
+body.nightMode form,
+body.nightMode .answers {
+    background-color: #333; /* Slightly lighter dark background for form/answer boxes */
+    border-color: #555; /* Lighter border color for visibility */
+}
+
+body.nightMode label,
+body.nightMode .answer {
+    /* Ensure text inside form/answer boxes is visible */
+    color: #ccc;
+}
+
+body.nightMode .question {
+    /* Inherits from .card, but if you want specific dark mode color */
+    color: #ccc;
+}
+
+body.nightMode .true {
+    color: limegreen; /* A more vibrant green for dark backgrounds */
+}
+
+body.nightMode .false {
+    color: lightcoral; /* A slightly softer red for dark backgrounds */
+}
+
+body.nightMode .explanation {
+    color: #aaa; /* Slightly subdued text for explanations in dark mode */
+}
+
+/* The .checked class does not need explicit dark-mode styling unless you want its underline to be a different specific color than the text in dark mode. */

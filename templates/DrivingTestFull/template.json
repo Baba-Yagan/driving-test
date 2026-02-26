@@ -1,0 +1,18 @@
+{
+    "modelName": "DrivingTestFull",
+    "inOrderFields": [
+        "id",
+        "questionText",
+        "explanationNote",
+        "mediaContent",
+        "answer1",
+        "answer2",
+        "answer3",
+        "is-correct-answer-1",
+        "is-correct-answer-2",
+        "is-correct-answer-3"
+    ],
+    "cardTemplates": [
+        "Card 1"
+    ]
+}

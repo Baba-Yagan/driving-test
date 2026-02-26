@@ -4,7 +4,7 @@ import glob
 
 # Folder containing JSON files
 input_folder = "media"
-output_file = "output.tsv"
+output_file = "driving_test.tsv"
 
 # TSV Header
 header = [
