@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 
 def main():
     url = "https://etesty.md.gov.cz/ro/DLArea/Index?id=99"
@@ -21,13 +22,20 @@ def main():
 
         if match:
             question_list_str = match.group(1)
+            
+            # Parse the string into a Python list
+            question_list = json.loads(question_list_str)
+            
             print("Successfully extracted questionList:")
-            print(question_list_str)
+            print(question_list)
+            print(f"Total questions found: {len(question_list)}")
         else:
             print("Could not find 'questionList' in the downloaded content.")
 
     except requests.exceptions.RequestException as e:
         print(f"Error downloading URL: {e}")
+    except json.JSONDecodeError as e:
+        print(f"Error parsing question list: {e}")
 
 if __name__ == "__main__":
     main()
