@@ -1,6 +1,7 @@
 import requests
 import re
 import json
+import os
 
 def main():
     url = "https://etesty.md.gov.cz/ro/DLArea/Index?id=99"
@@ -29,6 +30,21 @@ def main():
             print("Successfully extracted questionList")
             # print(question_list)
             print(f"Total questions found: {len(question_list)}")
+
+            # Create the main media directory
+            media_dir = "media"
+            os.makedirs(media_dir, exist_ok=True)
+            print(f"Created '{media_dir}' directory.")
+
+            # Create a subfolder for each question
+            for index, question in enumerate(question_list):
+                # Using index for folder name to ensure uniqueness
+                question_folder_name = f"question_{index}"
+                question_path = os.path.join(media_dir, question_folder_name)
+                os.makedirs(question_path, exist_ok=True)
+            
+            print("Finished creating question folders.")
+
         else:
             print("Could not find 'questionList' in the downloaded content.")
 
