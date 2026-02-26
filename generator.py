@@ -37,9 +37,8 @@ def main():
             print(f"Created '{media_dir}' directory.")
 
             # Create a subfolder for each question
-            for index, question in enumerate(question_list):
-                # Using index for folder name to ensure uniqueness
-                question_folder_name = f"question_{index}"
+            for question in question_list:
+                question_folder_name = f"question_{question}"
                 question_path = os.path.join(media_dir, question_folder_name)
                 os.makedirs(question_path, exist_ok=True)
             
