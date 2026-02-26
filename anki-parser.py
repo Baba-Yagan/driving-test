@@ -20,19 +20,25 @@ def safe_get(value):
     return ""
 
 # Helper function to convert media filenames to HTML embeds
-def format_media(media_url):
-    if not media_url:
+def format_media(filename):
+    if not filename:
         return ""
-    filename = os.path.basename(media_url)
-    if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
-        return f'<img src="{filename}" alt="{filename}">'  # Image embed
-    elif filename.lower().endswith(('.mp4', '.gif')):
-        return f'[sound:{filename}]'  # Custom video embed
-    return f'<a href="{filename}">{filename}</a>'  # Other media link
+    # os.path.basename is used here for safety, though filename should already be clean
+    clean_filename = os.path.basename(filename)
+    if clean_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+        return f'<img src="{clean_filename}" alt="{clean_filename}">'  # Image embed
+    elif clean_filename.lower().endswith(('.mp4', '.gif')):
+        return f'[sound:{clean_filename}]'  # Custom video embed
+    return f'<a href="{clean_filename}">{clean_filename}</a>'  # Other media link
 
 # Process JSON files
 rows = []
-for file in glob.glob(os.path.join(input_folder, "*.json")):
+
+# CHANGE: Updated glob pattern to search inside subdirectories created by generator.py
+# generator.py creates media/question_{id}/question.json
+search_pattern = os.path.join(input_folder, "*/question.json")
+
+for file in glob.glob(search_pattern):
     with open(file, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -42,8 +48,19 @@ for file in glob.glob(os.path.join(input_folder, "*.json")):
 
     # Extract question media filename safely
     media_data = data.get("mediaContent")
-    media_url = media_data.get("mediaUrl") if isinstance(media_data, dict) else None
-    media_content = format_media(media_url)
+    media_content = ""
+    
+    if isinstance(media_data, dict):
+        # CHANGE: Use printMediaName if available, as generator.py uses it to save the file
+        filename = media_data.get("printMediaName")
+        if not filename:
+            # Fallback to extracting from URL
+            media_url = media_data.get("mediaUrl")
+            if media_url:
+                filename = os.path.basename(media_url)
+        
+        if filename:
+            media_content = format_media(filename)
 
     # Extract answers
     answers = data.get("questionAnswers", [])
@@ -52,9 +69,22 @@ for file in glob.glob(os.path.join(input_folder, "*.json")):
 
     for a in answers:
         text = safe_get(a.get("answerText"))
-        media = a.get("mediaContent", {}).get("mediaUrl") if isinstance(a.get("mediaContent"), dict) else None
-        if media:
-            text = f'{format_media(media)} {text}'  # Prepend media HTML embed
+        
+        # Handle answer media
+        a_media_data = a.get("mediaContent")
+        a_media_filename = ""
+        
+        if isinstance(a_media_data, dict):
+            # CHANGE: Use printMediaName for answers as well
+            a_media_filename = a_media_data.get("printMediaName")
+            if not a_media_filename:
+                a_media_url = a_media_data.get("mediaUrl")
+                if a_media_url:
+                    a_media_filename = os.path.basename(a_media_url)
+        
+        if a_media_filename:
+            text = f'{format_media(a_media_filename)} {text}'
+            
         answer_texts.append(text)
         correct_answers.append("true" if a.get("isCorrect") else "false")
 
