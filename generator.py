@@ -26,8 +26,8 @@ def main():
             # Parse the string into a Python list
             question_list = json.loads(question_list_str)
             
-            print("Successfully extracted questionList:")
-            print(question_list)
+            print("Successfully extracted questionList")
+            # print(question_list)
             print(f"Total questions found: {len(question_list)}")
         else:
             print("Could not find 'questionList' in the downloaded content.")
