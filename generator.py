@@ -38,22 +38,14 @@ def main():
 
             # Create a subfolder for each question and download details
             for question in question_list:
-                # Extract the ID from the question object
-                # Assuming the key is 'id'. If the structure differs, this might need adjustment.
-                q_id = question.get('id')
-                
-                if q_id is None:
-                    print(f"Skipping question with missing ID: {question}")
-                    continue
-
-                question_folder_name = f"question_{q_id}"
+                question_folder_name = f"question_{question}"
                 question_path = os.path.join(media_dir, question_folder_name)
                 os.makedirs(question_path, exist_ok=True)
                 
                 # Download the JSON for this specific question
-                api_url = f"https://etesty.md.gov.cz/api/v1/PublicWeb/Question/{q_id}"
+                api_url = f"https://etesty.md.gov.cz/api/v1/PublicWeb/Question/{question}"
                 try:
-                    print(f"Downloading details for ID {q_id}...")
+                    print(f"Downloading details for ID {question}...")
                     q_response = requests.get(api_url)
                     q_response.raise_for_status()
                     
@@ -63,7 +55,7 @@ def main():
                         f.write(q_response.text)
                         
                 except Exception as e:
-                    print(f"Error downloading/saving question {q_id}: {e}")
+                    print(f"Error downloading/saving question {question}: {e}")
             
             print("Finished processing questions.")
 
