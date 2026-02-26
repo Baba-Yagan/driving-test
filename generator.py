@@ -36,13 +36,36 @@ def main():
             os.makedirs(media_dir, exist_ok=True)
             print(f"Created '{media_dir}' directory.")
 
-            # Create a subfolder for each question
+            # Create a subfolder for each question and download details
             for question in question_list:
-                question_folder_name = f"question_{question}"
+                # Extract the ID from the question object
+                # Assuming the key is 'id'. If the structure differs, this might need adjustment.
+                q_id = question.get('id')
+                
+                if q_id is None:
+                    print(f"Skipping question with missing ID: {question}")
+                    continue
+
+                question_folder_name = f"question_{q_id}"
                 question_path = os.path.join(media_dir, question_folder_name)
                 os.makedirs(question_path, exist_ok=True)
+                
+                # Download the JSON for this specific question
+                api_url = f"https://etesty.md.gov.cz/api/v1/PublicWeb/Question/{q_id}"
+                try:
+                    print(f"Downloading details for ID {q_id}...")
+                    q_response = requests.get(api_url)
+                    q_response.raise_for_status()
+                    
+                    # Save the JSON content to a file in the subfolder
+                    output_file_path = os.path.join(question_path, "question.json")
+                    with open(output_file_path, 'w', encoding='utf-8') as f:
+                        f.write(q_response.text)
+                        
+                except Exception as e:
+                    print(f"Error downloading/saving question {q_id}: {e}")
             
-            print("Finished creating question folders.")
+            print("Finished processing questions.")
 
         else:
             print("Could not find 'questionList' in the downloaded content.")
