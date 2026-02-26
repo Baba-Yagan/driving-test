@@ -94,13 +94,25 @@ def main():
                         # Check if mediaContent exists
                         if q_data.get("mediaContent"):
                             media_url_relative = q_data["mediaContent"].get("mediaUrl")
-                            media_name = q_data["mediaContent"].get("printMediaName")
 
-                            if media_url_relative and media_name:
+                            if media_url_relative:
+                                # Extract the actual filename from the URL to ensure correct extension
+                                actual_filename = os.path.basename(media_url_relative)
+                                
+                                # Update the JSON object to reflect the correct filename
+                                q_data["mediaContent"]["printMediaName"] = actual_filename
+                                
+                                # Save the updated JSON back to the file
+                                try:
+                                    with open(json_path, 'w', encoding='utf-8') as f:
+                                        json.dump(q_data, f, ensure_ascii=False)
+                                except Exception as e:
+                                    print(f"\nError updating JSON for question {question}: {e}")
+
                                 # Construct full URL
                                 base_url = "https://etesty.md.gov.cz"
                                 full_media_url = f"{base_url}{media_url_relative}"
-                                media_save_path = os.path.join(question_path, media_name)
+                                media_save_path = os.path.join(question_path, actual_filename)
 
                                 if os.path.exists(media_save_path):
                                     media_skipped += 1
