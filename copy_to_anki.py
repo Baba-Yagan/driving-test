@@ -81,18 +81,14 @@ def main():
 
             source_file = Path(root) / file
             
-            # Calculate relative path to preserve directory structure (e.g., question_1/image.jpg)
-            relative_path = source_file.relative_to(source_media_path)
-            dest_file = dest_media_path / relative_path
-
-            # Create subdirectories in destination if they don't exist
-            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            # Copy directly to destination, flattening directory structure
+            dest_file = dest_media_path / file
 
             try:
                 # Check if file already exists to avoid overwriting/copying unnecessarily
                 if not dest_file.exists():
                     shutil.copy2(source_file, dest_file)
-                    print(f"Copied: {relative_path}")
+                    print(f"Copied: {file}")
                     copied_count += 1
                 else:
                     # Optional: Check if file is different? For now, just skip.
