@@ -1,5 +1,4 @@
 <script>
-// Load persistence script (ensure it's in your template)
 if (!window.Persistence) {
   var e = "github.com/SimonLammer/anki-persistence/", t = "_default";
   window.Persistence_sessionStorage = function () {
@@ -104,8 +103,6 @@ function setupCardAnswers() {
         return; // Exit if essential elements aren't present
     }
 
-    // ************* IMPORTANT CHANGE HERE *************
-    // Use .innerHTML instead of .textContent to get HTML content (e.g., images)
     const answers = [
         anki_answer1_div.innerHTML, // Get full HTML content
         anki_answer2_div.innerHTML, // Get full HTML content
@@ -130,7 +127,7 @@ function setupCardAnswers() {
     }
 
     // Shuffle the answers
-    shuffleArray(answers);
+    // shuffleArray(answers);
 
     // Dynamically create and append the checkboxes
     answers.forEach((answerContent, index) => { // Renamed answerText to answerContent for clarity
